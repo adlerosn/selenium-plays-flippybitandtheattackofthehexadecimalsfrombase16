@@ -1,0 +1,4 @@
+.mypy_cache
+geckodriver.log
+.vscode
+*.pyc
