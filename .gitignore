@@ -2,3 +2,5 @@
 geckodriver.log
 .vscode
 *.pyc
+hiscore.txt
+scores
