@@ -30,16 +30,14 @@ def main():
     sleep(1.5)
     game.send_keys("1")
     while True:
-        new_data = driver.execute_script(
+        data = driver.execute_script(
             "return [...document.querySelectorAll('.enemy:not(.under-attack)')].map(x=>x.innerText.trim()).join(',');"
         )
-        new_data = list(
-            map(lambda a: int(a, 16), filter(len, new_data.split(','))))
-        current_data = new_data[:]
-        if (datalen := len(current_data)) > 0:
-            print(f'Still on screen: {len(new_data)}')
-            print(f'New enemies: {bytearray(current_data).hex().upper()}')
-            for enemy_number in current_data:
+        data = list(map(lambda a: int(a, 16), filter(len, data.split(','))))
+        if (datalen := len(data)) > 0:
+            print(f'Still on screen: {len(data)}')
+            print(f'New enemies: {bytearray(data).hex().upper()}')
+            for enemy_number in data:
                 keys = ('0'*8+bin(enemy_number)[2:])[-8:]
                 keypresses = list(map(
                     lambda x: x[0],
