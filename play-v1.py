@@ -4,15 +4,18 @@
 import random
 from pathlib import Path
 from time import sleep
-from typing import List
+from typing import Dict, FrozenSet, Iterable, List, Set, TypeVar
 
 from selenium import webdriver
 from selenium.webdriver.remote.webelement import WebElement
 
+_GT = TypeVar('_GT')
+
 URL = 'https://flippybitandtheattackofthehexadecimalsfrombase16.com/'
-BUFFER_SIZE = 64
+BUFFER_SIZE = 48
 BUFFER_PREPARE_SIZE = 1024
 DISABLE_ANIMATIONS = True
+JUST_TRUST_RANDOMNESS_STRATEGY = False
 
 
 def main():
@@ -80,14 +83,38 @@ def main_cycle(driver: webdriver.Firefox, game: WebElement):
         screenshot_and_restart_on_game_over(driver, game)
 
 
-def shuffled(a):
+def shuffled(a: Iterable[_GT]) -> List[_GT]:
     b = list(a)
     random.shuffle(b)
     return b
 
 
-def sort_keystrokes(keystrokes: List[str]) -> List[str]:
-    return list(map(lambda a: ''.join(shuffled(a)), keystrokes))
+def sort_keystrokes(keystrokes: List[str], out_limit: int = BUFFER_SIZE, knowledge_limit: int = BUFFER_PREPARE_SIZE) -> List[str]:
+    if JUST_TRUST_RANDOMNESS_STRATEGY or len(keystrokes) <= 1:
+        return list(map(lambda a: ''.join(shuffled(a)), keystrokes))
+    keystrokes = keystrokes[:knowledge_limit]
+    known_activations: FrozenSet[FrozenSet[str]] = frozenset(
+        frozenset(a) for a in keystrokes)
+    activations: Dict[FrozenSet[str], List[int]] = dict(
+        (a, list()) for a in known_activations)
+    for i, k in enumerate(keystrokes):
+        activations[frozenset(k)].append(i)
+        del i
+        del k
+    out_ks: List[str] = list()
+    out_is: Set[int] = set()
+    ksi = 0
+    while len(out_ks) < len(keystrokes) and len(out_ks) < out_limit and len(out_ks) < knowledge_limit:
+        ks: List[str] = shuffled(keystrokes[ksi])
+        for sksi in range(len(ks)):
+            sks = ks[:sksi+1]
+            sksfs = frozenset(sks)
+            for sksai in sorted(activations.get(sksfs, [])):
+                if sksai not in out_is and ksi not in out_is:
+                    out_ks.append(''.join(sks))
+                    out_is.add(sksai)
+        ksi += 1
+    return out_ks[:out_limit][:knowledge_limit]
 
 
 def enemy_number_to_keys(enemy_number: int) -> str:
