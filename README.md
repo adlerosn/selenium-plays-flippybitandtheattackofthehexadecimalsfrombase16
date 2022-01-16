@@ -2,14 +2,14 @@
 
 To see it playing, install selenium from PyPi or your package manager and then run:
 
-$ `python3 play.py`
+$ `python3 play-v1.py`
 
 ## My best score
 
-![Game over screen showing the final score of 263](Screenshot_2022-01-13_22-26-24.png)
+![Game over screen showing the final score of 276](screenshot_0276.png)
 
-I got 263 points on a:
-- i7 4790 + Intel HD Graphics 4600
+I got 276 points on a:
+- i7 4790 + Intel HD Graphics 4600 + 16GB@1600MHz
 - No discrete GPU
 - Firefox 96.0
 - Archlinux
